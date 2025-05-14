@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>¡Feliz Cumpleaños!</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Segoe UI", sans-serif;
+      background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .container {
+      text-align: center;
+      background: white;
+      padding: 2rem;
+      border-radius: 20px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+      position: relative;
+      z-index: 2;
+      max-width: 600px;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    button {
+      padding: 0.8rem 1.5rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 10px;
+      background-color: #ff4081;
+      color: white;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #e91e63;
+    }
+
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .fotos {
+      margin-top: 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem;
+      opacity: 0;
+      transform: scale(0.9);
+      transition: all 0.8s ease;
+    }
+
+    .fotos.visible {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .fotos img {
+      width: 150px;
+      height: auto;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+
+    .fotos img:hover {
+      transform: scale(1.05);
+    }
+
+    /* Lightbox */
+    .lightbox {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .lightbox.visible {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    .lightbox img {
+      max-width: 90%;
+      max-height: 80%;
+      border-radius: 15px;
+    }
+
+    .lightbox .close {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      font-size: 30px;
+      color: white;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎂 ¡Feliz Cumpleaños! 🎉</h1>
+    <p id="message">Haz clic en el botón para tu sorpresa 🎁</p>
+    <button id="btnSorpresa">Ver Sorpresa</button>
+    
+    <!-- Contenedor de fotos -->
+    <div class="fotos" id="galeria">
+      <img src="fot1.jpg" alt="Foto 1">
+      <img src="foto2.jpg" alt="Foto 2">
+      <img src="foto4.jpeg" alt="Foto 3">
+    </div>
+  </div>
+  <canvas id="confetti-canvas"></canvas>
+
+  <!-- Lightbox -->
+  <div class="lightbox" id="lightbox">
+    <span class="close" id="cerrarLightbox">✖</span>
+    <img id="lightbox-img" src="" alt="Imagen grande">
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const btn = document.getElementById("btnSorpresa");
+      const galeria = document.getElementById("galeria");
+      const lightbox = document.getElementById("lightbox");
+      const lightboxImg = document.getElementById("lightbox-img");
+      const cerrarBtn = document.getElementById("cerrarLightbox");
+
+      btn.addEventListener("click", function () {
+        document.getElementById("message").innerText =
+          "¡Te AMO y te  deseo un año lleno de alegría, salud y muchos éxitos! 🎈🥳";
+        galeria.classList.add("visible");
+        lanzarConfeti();
+      });
+
+      function lanzarConfeti() {
+        const canvas = document.getElementById("confetti-canvas");
+        const ctx = canvas.getContext("2d");
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const confettis = [];
+
+        for (let i = 0; i < 150; i++) {
+          confettis.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * -canvas.height,
+            r: Math.random() * 6 + 4,
+            color: `hsl(${Math.random() * 360}, 100%, 50%)`,
+            speed: Math.random() * 3 + 2,
+            drift: Math.random() * 2 - 1
+          });
+        }
+
+        function draw() {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          confettis.forEach(c => {
+            ctx.beginPath();
+            ctx.arc(c.x, c.y, c.r, 0, Math.PI * 2);
+            ctx.fillStyle = c.color;
+            ctx.fill();
+            c.y += c.speed;
+            c.x += c.drift;
+
+            if (c.y > canvas.height) {
+              c.y = -10;
+              c.x = Math.random() * canvas.width;
+            }
+          });
+
+          requestAnimationFrame(draw);
+        }
+
+        draw();
+      }
+
+      // Lightbox
+      document.querySelectorAll('.fotos img').forEach(img => {
+        img.addEventListener('click', () => {
+          lightboxImg.src = img.src;
+          lightbox.classList.add('visible');
+        });
+      });
+
+      cerrarBtn.addEventListener('click', () => {
+        lightbox.classList.remove('visible');
+      });
+
+      lightbox.addEventListener('click', (e) => {
+        if (e.target === lightbox || e.target === cerrarBtn) {
+          lightbox.classList.remove('visible');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
